@@ -39,4 +39,4 @@ Read the matching reference file before acting. Each reference is self-contained
   result=$(sfp pool fetch ... --json)
   echo "$result" | jq -r '.username'
   ```
-- **Session secrets:** frontdoor URLs and `sfdxAuthUrl` values contain short-lived session credentials. Print once in the report; never persist to disk or logs.
+- **Session secrets — never print to your output:** frontdoor URLs (the `https://<org>/secur/frontdoor.jsp?sid=...` form) and `sfdxAuthUrl` values contain live session credentials good for hours. Your output is captured in conversation transcripts, logs, and screenshots — printing a session URL "just once in the report" still leaks it. Open the browser via `sfp org open --targetusername <alias>` **without** `--json` — sfp opens the browser locally as a side effect and the URL never surfaces. If the user wants to open the org in a different browser later, tell them to rerun the same `sfp org open` command themselves; do not capture or paste the URL on their behalf. Never write these values to files either. Pass `sfdxAuthUrl` to `sfp org login` via stdin (`--url-stdin -`), never as an argument.

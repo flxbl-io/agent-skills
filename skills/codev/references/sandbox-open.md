@@ -66,20 +66,22 @@ echo "$SFDX_AUTH_URL" | sfp org login --url-stdin - --alias "$DERIVED_ALIAS" --j
 ### 5. Open it
 
 ```bash
-sfp org open --targetusername "$ALIAS" --json | jq -r '.result.url // .frontdoorUrl'
+sfp org open --targetusername "$ALIAS"
 ```
 
-On most setups `sfp org open` also launches the browser as a side effect, so the user lands in the org without clicking. Still print the URL — they may want to paste it into a different browser/profile.
+Drop `--json`. With `--json`, sfp returns the frontdoor URL (which carries a live session credential) and skips opening the browser. Without `--json`, sfp opens the browser locally; the URL stays on the user's machine and never enters your output, the transcript, or logs.
+
+**Never capture, paste, or print the frontdoor URL yourself.** If the user wants to open the sandbox in a different browser, tell them to rerun `sfp org open --targetusername $ALIAS` themselves.
 
 ### 6. Report
 
 Compact summary:
 
-- **Sandbox (open in browser):** frontdoor URL on its own line
+- **Sandbox:** opened in browser. Reopen with `sfp org open --targetusername $ALIAS`.
 - **Assignment ID:** so the user can recognise which sandbox this is
 - **Sandbox name:** e.g. `354711`
 - **Alias:** the local alias they can use with subsequent `sfp ... --targetusername <alias>` calls
 - **Expires:** the `expiresAt` value, plus a humanised "in Xh" if helpful
 - **Pool tag:** the pool the sandbox came from
 
-Frontdoor URLs and sfdxAuthUrls are short-lived session secrets — print once in the report, never persist.
+Do **not** include the frontdoor URL anywhere in the report. The `sfdxAuthUrl` from step 2 is also a session credential — passed via stdin to `sfp org login` in step 4, never write or print it.

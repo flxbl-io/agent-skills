@@ -165,22 +165,22 @@ Do not switch CLIs on failure — read the error and fix the root cause.
 
 ### 11. Report
 
-Generate a frontdoor URL for the sandbox so the user can open it in one click:
+Open the sandbox in the user's browser via sfp's side-effect — **do not capture or print the URL**:
 
 ```bash
-sfp org open --targetusername codev-dev --json | jq -r '.frontdoorUrl'
+sfp org open --targetusername codev-dev
 ```
+
+Drop `--json` here. With `--json`, sfp returns the frontdoor URL (which carries a live session credential) and skips opening the browser. Without `--json`, sfp opens the browser locally; the URL stays on the user's machine and never enters your output, the transcript, or logs.
 
 Output a summary including:
 - Task slug / identifier
 - **Worktree (open in IDE):** absolute path to `.claude/worktrees/codev-<task-slug>/` — print it on its own line so the user can click/paste it into their editor
-- **Sandbox (open in browser):** the frontdoor URL from `sfp org open --json` above — one-click login, no credentials needed
-- Sandbox username + assignment ID + pool tag
+- **Sandbox:** "opened in browser. Reopen anytime with `sfp org open --targetusername codev-dev`." Do **not** include the frontdoor URL itself.
+- Sandbox alias (`codev-dev`) + username + assignment ID + pool tag
 - Files changed (brief one-line each)
 - Packages deployed + deployment status with any notable warnings
 - Apex test results (if tests were run): pass/fail counts; flag pre-existing vs newly-introduced failures separately when possible
-
-Frontdoor URLs contain a session ID — short-lived and sensitive. Don't persist them anywhere.
 
 **Do NOT create a PR.** The user opens it after reviewing in the sandbox.
 
