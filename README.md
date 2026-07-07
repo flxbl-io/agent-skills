@@ -30,7 +30,8 @@ The CLI auto-detects your agent (Claude Code, Cursor, etc.) and drops the skill 
 
 These skills are designed for teams using the Flxbl framework. To use `codev`, you need:
 
-- **sfp-pro V3** installed (`sfp --version` should report 3.x). `sf` / `sfdx` are not used — sfp-pro is the only supported CLI.
+- **sfp-pro V3** installed (`sfp --version` should report 51.x). `sf` / `sfdx` are not used — sfp-pro is the only supported CLI.
+- **sfp-pro** should be authenticated to the server
 - **sfp-pro server access** with a configured dev pool.
 - **`.sfp-pro/config.json`** at your repo root, containing at minimum:
   ```json
