@@ -8,7 +8,7 @@ Built on the [open agent skills standard](https://skills.sh) and installed via [
 
 | Skill | What it does |
 |---|---|
-| **[codev](skills/codev/)** | Salesforce dev workflows backed by the [sfp](https://docs.flxbl.io/sfp) dev pool. Three modes: end-to-end implement/deploy, ad-hoc sandbox fetch, reopen an assigned sandbox. |
+| **[codev](skills/codev/)** | Salesforce dev workflows backed by the [sfp](https://docs.flxbl.io/sfp) dev pool, driven by the **codev CLI**. Four modes: end-to-end implement/deploy, ad-hoc sandbox fetch, reopen an assigned sandbox, and a CI agent mode for `@claude` runs inside the `ghcr.io/flxbl-io/codev` container on GitHub Actions. |
 
 ## Install
 
@@ -26,14 +26,17 @@ npx skills add flxbl-io/agent-skills/codev
 
 The CLI auto-detects your agent (Claude Code, Cursor, etc.) and drops the skill into the right location (e.g. `.claude/skills/codev/` for Claude Code).
 
+## CI quick start (`@claude` on GitHub issues/PRs)
+
+To run the codev agent in GitHub Actions — comment `@claude use codev to work on this` on any issue and get a validated PR back — copy [`skills/codev/assets/claude.yml`](skills/codev/assets/claude.yml) into your repo's `.github/workflows/`, commit the skill at `.claude/skills/codev/`, and configure the secrets and Actions variables it names. Full setup notes: [`skills/codev/references/github-actions.md`](skills/codev/references/github-actions.md).
+
 ## Prerequisites
 
-These skills are designed for teams using the Flxbl framework. To use `codev`, you need:
+These skills are designed for teams using the Flxbl framework. To use `codev`, you need **one** of:
 
-- **sfp-pro V3** installed (`sfp --version` should report 51.x). `sf` / `sfdx` are not used — sfp-pro is the only supported CLI.
-- **sfp-pro** should be authenticated to the server
-- **sfp-pro server access** with a configured dev pool.
-- **`.sfp-pro/config.json`** at your repo root, containing at minimum:
+- **The codev desktop app** with its command-line tools installed (Settings → App Configuration → Command-Line Tools) and a signed-in session — this is the developer-machine setup. The `codev` command carries the curated developer workflow surface (identical to the container image's); `sf` / `sfdx` are not used.
+- **The codev container image** (`ghcr.io/flxbl-io/codev`) with an sfp **application token** in the environment (`SFP_SERVER_TOKEN` + `SFP_SERVER_URL`) — this is the CI / GitHub Actions setup; see the skill's `references/github-actions.md` for a ready workflow template.
+- **Legacy: standalone sfp-pro V3** (`sfp --version` reporting 51.x+) authenticated to the server, with `.sfp-pro/config.json` at the repo root:
   ```json
   {
     "server-url": "https://your-sfp-server.example.com",
@@ -41,10 +44,9 @@ These skills are designed for teams using the Flxbl framework. To use `codev`, y
     "pool-tag": "your-dev-pool-tag"
   }
   ```
-  `server-url` and `server-email` are auto-loaded by sfp; `pool-tag` is read by the skill to know which pool to fetch from.
-- **A Flxbl-style repo** with `sfdx-project.json` describing packages and (typically) domains.
+  Every command in the skill is identical between `codev` and `sfp` — only the binary name differs.
 
-Without sfp-pro and a dev pool, the skill has nothing to fetch sandboxes from. If you're a Flxbl customer and need access, contact your Flxbl admin or reach out via [flxbl.io](https://flxbl.io).
+Plus, in all setups: **sfp server access with a configured dev pool** and **a Flxbl-style repo** with `sfdx-project.json` describing packages and (typically) domains. Without a server and a dev pool, the skill has nothing to fetch sandboxes from. If you're a Flxbl customer and need access, contact your Flxbl admin or reach out via [flxbl.io](https://flxbl.io).
 
 ## Skill design
 

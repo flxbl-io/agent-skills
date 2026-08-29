@@ -16,7 +16,7 @@ Shared CLI / config / `--json` conventions live in [`../SKILL.md`](../SKILL.md).
 
 The user's args may be a Jira key, a GitHub issue URL, or a free-form description. Work from whatever they provide. If they passed an identifier and the relevant tooling is available (Jira MCP, `gh issue view`), pull context yourself — otherwise ask the user for what you need. Don't block on tracker access.
 
-Settle on a **stable task slug** before moving on (e.g., the Jira key `PROJ-123`, or a 3-5 word kebab-case slug derived from the description like `vehicle-color-field`). You'll reuse this for both the worktree name and the sfp `--assignment-id`, so re-running codev on the same task picks up where it left off.
+Settle on a **stable task slug** before moving on (e.g., the Jira key `PROJ-123`, or a 3-5 word kebab-case slug derived from the description like `vehicle-color-field`). You'll reuse this for both the worktree name and the codev `--assignment-id`, so re-running codev on the same task picks up where it left off.
 
 Then read the repo to locate the affected domain/package and identify existing patterns.
 
@@ -44,10 +44,10 @@ Each codev run works in its own git worktree so the user's main checkout stays c
 
 If a worktree with that name already exists (re-running the same task), `EnterWorktree` will reuse it.
 
-After entering the worktree, link `.sfp-pro/` from the main repo so sfp can resolve its config:
+After entering the worktree, link `.sfp-pro/` from the main repo so legacy config resolution keeps working (skip when running with an application token — `SFP_SERVER_TOKEN` set — where no config file exists or is needed):
 
 ```bash
-[ ! -e .sfp-pro ] && ln -s "$(dirname "$(git rev-parse --git-common-dir)")/.sfp-pro" .sfp-pro
+[ -n "${SFP_SERVER_TOKEN:-}" ] || { [ ! -e .sfp-pro ] && ln -s "$(dirname "$(git rev-parse --git-common-dir)")/.sfp-pro" .sfp-pro; }
 ```
 
 `.sfp-pro/` is gitignored (user-local config) so it isn't present in a fresh worktree; symlinking inherits it from the main checkout.
@@ -55,20 +55,20 @@ After entering the worktree, link `.sfp-pro/` from the main repo so sfp can reso
 ### 4. Resolve repo + pool from config
 
 ```bash
-REPO=$(git remote get-url origin | sed -E 's|\.git$||; s|^.*[:/]([^/]+/[^/]+)$|\1|')
-POOL_TAG=$(jq -r '."pool-tag" // empty' .sfp-pro/config.json)
+REPO=${SFP_REPOSITORY:-$(git remote get-url origin | sed -E 's|\.git$||; s|^.*[:/]([^/]+/[^/]+)$|\1|')}
+POOL_TAG=${SFP_POOL_TAG:-$(jq -r '."pool-tag" // empty' .sfp-pro/config.json 2>/dev/null)}
 
-[ -z "$POOL_TAG" ] && { echo "pool-tag missing from .sfp-pro/config.json" >&2; exit 1; }
+[ -z "$POOL_TAG" ] && { echo "pool tag not resolvable (SFP_POOL_TAG env, task instruction, or .sfp-pro/config.json)" >&2; exit 1; }
 ```
 
-Don't try to auto-discover a pool. If `pool-tag` isn't set in config, surface that to the user and stop. The configured pool is the dev pool for ad-hoc work; review-env pools are managed separately by `sfp review-envs` and should never be poached.
+Don't try to auto-discover a pool. If `pool-tag` isn't set in config, surface that to the user and stop. The configured pool is the dev pool for ad-hoc work; review-env pools are managed separately by `codev review-envs` and should never be poached.
 
 ### 5. Fetch the sandbox
 
 Using the pool tag from config and the task slug as the stable assignment ID:
 
 ```bash
-sfp pool fetch \
+codev pool fetch \
   --repository "$REPO" \
   --tag "$POOL_TAG" \
   --alias codev-dev \
@@ -77,10 +77,10 @@ sfp pool fetch \
   --json
 ```
 
-- `--set-default` makes the fetched org the default for subsequent `sfp` commands.
+- `--set-default` makes the fetched org the default for subsequent `codev` commands.
 - `--assignment-id` is the stable task slug from step 1 — re-running codev for the same task reuses the same sandbox.
 - Parse JSON from stdout. Capture `username` for the deploy step.
-- Auth is handled by the fetch; no separate `sfp org login` is needed.
+- Auth is handled by the fetch; no separate `codev org login` is needed.
 - If the fetch errors on missing auth, surface that to the user — don't invent values.
 
 ### 6. Implement
@@ -94,7 +94,7 @@ sfp pool fetch \
 
 ```bash
 # Preferred — for committed changes
-sfp impact package --basebranch main --json
+codev impact package --basebranch main --json
 
 # Fallback — for uncommitted work
 git diff --name-only HEAD
@@ -106,19 +106,19 @@ cat sfdx-project.json | jq -r '.packageDirectories[] | select(.path | contains("
 
 ```bash
 # Preferred — single package
-sfp push --package <pkg> --targetusername <username-from-step-5> --json
+codev push --package <pkg> --targetusername <username-from-step-5> --json
 
 # Multiple packages in same domain
-sfp push --domain <domain> --targetusername <username> --json
+codev push --domain <domain> --targetusername <username> --json
 
 # Last resort — all changes, no scope (slow, risky)
-sfp push --ignore-conflicts --targetusername <username> --json
+codev push --ignore-conflicts --targetusername <username> --json
 ```
 
 **Hard rules:**
-- NEVER run `sfp push` with no flags — it deploys the entire source tree.
+- NEVER run `codev push` with no flags — it deploys the entire source tree.
 - NEVER combine `--package`/`--domain` with `--ignore-conflicts` — mutually exclusive.
-- Use `sfp push`, NOT `sfp validate` — validate needs a DevHub the dev pool may not have.
+- Use `codev push`, NOT `codev validate` — validate needs a DevHub the dev pool may not have.
 
 ### 9. Run Apex tests (if applicable)
 
@@ -132,7 +132,7 @@ HAS_APEX=$(find "$PKG_PATH" -name "*.cls" -type f 2>/dev/null | head -1)
 If `$HAS_APEX` is non-empty, ask the user. If they say yes:
 
 ```bash
-sfp apextests trigger \
+codev apextests trigger \
   --targetusername codev-dev \
   --testlevel RunAllTestsInPackage \
   --package <package> \
@@ -141,7 +141,7 @@ sfp apextests trigger \
 
 - `RunAllTestsInPackage` scopes the run to tests in the deployed package — fastest signal.
 - Add `--validatepackagecoverage` if the user wants a coverage gate.
-- Add `--async` + `sfp apextests resume` for long test runs you don't want to block on.
+- Add `--async` + `codev apextests resume` for long test runs you don't want to block on.
 
 Parse the JSON result for pass/fail counts and code coverage; include in the final report.
 
@@ -153,7 +153,7 @@ If the user declines, skip and note "tests skipped per user choice" in the repor
 
 ```bash
 for i in 1 2 3; do
-  sfp push --package <pkg> --targetusername <u> --json && break
+  codev push --package <pkg> --targetusername <u> --json && break
   echo "Attempt $i failed, retrying in 30s..." >&2
   sleep 30
 done
@@ -168,27 +168,27 @@ Do not switch CLIs on failure — read the error and fix the root cause.
 Open the sandbox in the user's browser via sfp's side-effect — **do not capture or print the URL**:
 
 ```bash
-sfp org open --targetusername codev-dev
+codev org open --targetusername codev-dev
 ```
 
-Drop `--json` here. With `--json`, sfp returns the frontdoor URL (which carries a live session credential) and skips opening the browser. Without `--json`, sfp opens the browser locally; the URL stays on the user's machine and never enters your output, the transcript, or logs.
+Drop `--json` here. With `--json`, codev returns the frontdoor URL (which carries a live session credential) and skips opening the browser. Without `--json`, codev opens the browser locally; the URL stays on the user's machine and never enters your output, the transcript, or logs.
 
 Output a summary including:
 - Task slug / identifier
 - **Worktree (open in IDE):** absolute path to `.claude/worktrees/codev-<task-slug>/` — print it on its own line so the user can click/paste it into their editor
-- **Sandbox:** "opened in browser. Reopen anytime with `sfp org open --targetusername codev-dev`." Do **not** include the frontdoor URL itself.
+- **Sandbox:** "opened in browser. Reopen anytime with `codev org open --targetusername codev-dev`." Do **not** include the frontdoor URL itself.
 - Sandbox alias (`codev-dev`) + username + assignment ID + pool tag
 - Files changed (brief one-line each)
 - Packages deployed + deployment status with any notable warnings
 - Apex test results (if tests were run): pass/fail counts; flag pre-existing vs newly-introduced failures separately when possible
 
-**Do NOT create a PR.** The user opens it after reviewing in the sandbox.
+**Do NOT create a PR** in interactive runs — the user opens it after reviewing in the sandbox. (In CI there is no reviewing user: the PR *is* the deliverable — see [`github-actions.md`](github-actions.md).)
 
 ## Quick reference
 
 | Symptom | Wrong move | Correct move |
 |---|---|---|
-| `sfp push` returns 4xx/5xx | Try `sf project deploy` | Retry after 30s (transient) |
-| Unknown flag | Guess | `sfp <command> --help` |
+| `codev push` returns 4xx/5xx | Try `sf project deploy` | Retry after 30s (transient) |
+| Unknown flag | Guess | `codev <command> --help` |
 | JSON has logs mixed in | Add `2>&1` | Drop the redirect |
 | Repeated deploy failures | Switch CLI | Read the error, fix the cause |

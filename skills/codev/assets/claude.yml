@@ -1,0 +1,64 @@
+name: claude
+
+# Generic @claude agent running INSIDE the codev CLI container
+# (ghcr.io/flxbl-io/codev). Comment "@claude use codev to work on this" on an
+# issue or PR — the codev skill at .claude/skills/codev/ supplies the rest.
+#
+# Setup (see skills/codev/references/github-actions.md for details):
+#   Secrets: CLAUDE_CODE_OAUTH_TOKEN, SFP_SERVER_TOKEN, GHA_TOKEN
+#   Actions variables: SFP_SERVER_URL, SFP_POOL_TAG
+#   Commit the codev skill at .claude/skills/codev/ in your repo.
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  claude:
+    if: contains(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    container:
+      image: ghcr.io/flxbl-io/codev:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHA_TOKEN }}
+    env:
+      SFP_SERVER_URL: ${{ vars.SFP_SERVER_URL }}
+      SFP_SERVER_TOKEN: ${{ secrets.SFP_SERVER_TOKEN }}
+      SFP_REPOSITORY: ${{ github.repository }}
+      SFP_POOL_TAG: ${{ vars.SFP_POOL_TAG }}
+      # PAT under a name the claude action does not clobber — the enterprise
+      # forbids the Actions installation token from creating PRs.
+      AGENT_GH_PAT: ${{ secrets.GHA_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitHub CLI (the codev image does not ship gh)
+        run: |
+          set -euo pipefail
+          curl -fsSL -o /tmp/gh.tgz https://github.com/cli/cli/releases/download/v2.76.2/gh_2.76.2_linux_amd64.tar.gz
+          tar -xzf /tmp/gh.tgz -C /tmp
+          install -m 0755 /tmp/gh_2.76.2_linux_amd64/bin/gh /usr/local/bin/gh
+
+      - name: Mark workspace safe for git
+        # container bind-mounts the workspace under a different uid; without
+        # this, git discovery fails ("not in a git directory") inside the action
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory '*'
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # explicit token skips the action's GitHub-App OIDC exchange
+          # (which needs id-token:write + the Claude GitHub App installed)
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          claude_args: --allowedTools "Bash,Read,Write,Edit,Glob,Grep"
