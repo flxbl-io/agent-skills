@@ -17,12 +17,14 @@ MY_EMAIL=$(jq -r '."server-email" // empty' .sfp-pro/config.json)
 [ -z "$MY_EMAIL" ]  && { echo "server-email missing from .sfp-pro/config.json" >&2; exit 1; }
 ```
 
-`server-email` is the user's identity — used to filter assigned sandboxes to "mine". If `.sfp-pro/config.json` isn't present (e.g. running from a worktree), surface that — don't guess.
+`server-email` is the user's identity — used to filter assigned sandboxes to "mine". On a desktop-session codev setup with no config file, ask the user which email identifies them rather than guessing. If `.sfp-pro/config.json` isn't present (e.g. running from a worktree), surface that — don't guess.
+
+With **application-token auth** (CI), assignments made by the token appear under `app:<token-owner-email>` in `assignedToUserEmail` — match both `$MY_EMAIL` and `app:$MY_EMAIL` when filtering.
 
 ### 2. List sandboxes assigned to me
 
 ```bash
-sfp pool list \
+codev pool list \
   --repository "$REPO" \
   --tag "$POOL_TAG" \
   --status ASSIGNED \
@@ -45,12 +47,12 @@ Key fields per instance:
 
 ### 4. Establish a local alias
 
-`sfp org open` needs a locally-authed alias. Check what already exists:
+`codev org open` needs a locally-authed alias. Check what already exists:
 
 ```bash
 DERIVED_ALIAS="sbx-$(echo "$ASSIGNMENT_ID" | tr -c '[:alnum:]-' '-' | sed 's/-\+/-/g; s/^-//; s/-$//')"
 
-sfp org list --local-only --json \
+codev org list --local-only --json \
   | jq -r --arg url "$INSTANCE_URL" '.result.nonScratchOrgs[]? // .nonScratchOrgs[]? // empty | select(.instanceUrl == $url) | .alias // .username' \
   | head -1
 ```
@@ -58,7 +60,7 @@ sfp org list --local-only --json \
 If an existing alias/username is found, reuse it. Otherwise auth fresh from the `sfdxAuthUrl` already returned by step 2:
 
 ```bash
-echo "$SFDX_AUTH_URL" | sfp org login --url-stdin - --alias "$DERIVED_ALIAS" --json
+echo "$SFDX_AUTH_URL" | codev org login --url-stdin - --alias "$DERIVED_ALIAS" --json
 ```
 
 `sfdxAuthUrl` is a session credential — pass via stdin, don't write to disk or echo to logs. Don't pass `--set-default` (this mode must not stomp on the user's current default org).
@@ -66,22 +68,22 @@ echo "$SFDX_AUTH_URL" | sfp org login --url-stdin - --alias "$DERIVED_ALIAS" --j
 ### 5. Open it
 
 ```bash
-sfp org open --targetusername "$ALIAS"
+codev org open --targetusername "$ALIAS"
 ```
 
-Drop `--json`. With `--json`, sfp returns the frontdoor URL (which carries a live session credential) and skips opening the browser. Without `--json`, sfp opens the browser locally; the URL stays on the user's machine and never enters your output, the transcript, or logs.
+Drop `--json`. With `--json`, codev returns the frontdoor URL (which carries a live session credential) and skips opening the browser. Without `--json`, codev opens the browser locally; the URL stays on the user's machine and never enters your output, the transcript, or logs.
 
-**Never capture, paste, or print the frontdoor URL yourself.** If the user wants to open the sandbox in a different browser, tell them to rerun `sfp org open --targetusername $ALIAS` themselves.
+**Never capture, paste, or print the frontdoor URL yourself.** If the user wants to open the sandbox in a different browser, tell them to rerun `codev org open --targetusername $ALIAS` themselves.
 
 ### 6. Report
 
 Compact summary:
 
-- **Sandbox:** opened in browser. Reopen with `sfp org open --targetusername $ALIAS`.
+- **Sandbox:** opened in browser. Reopen with `codev org open --targetusername $ALIAS`.
 - **Assignment ID:** so the user can recognise which sandbox this is
 - **Sandbox name:** e.g. `354711`
-- **Alias:** the local alias they can use with subsequent `sfp ... --targetusername <alias>` calls
+- **Alias:** the local alias they can use with subsequent `codev ... --targetusername <alias>` calls
 - **Expires:** the `expiresAt` value, plus a humanised "in Xh" if helpful
 - **Pool tag:** the pool the sandbox came from
 
-Do **not** include the frontdoor URL anywhere in the report. The `sfdxAuthUrl` from step 2 is also a session credential — passed via stdin to `sfp org login` in step 4, never write or print it.
+Do **not** include the frontdoor URL anywhere in the report. The `sfdxAuthUrl` from step 2 is also a session credential — passed via stdin to `codev org login` in step 4, never write or print it.
