@@ -32,7 +32,7 @@ To run the codev agent in GitHub Actions — comment `@claude use codev to work 
 
 1. Copy [`skills/codev/assets/claude.yml`](skills/codev/assets/claude.yml) into your repo's `.github/workflows/` verbatim.
 2. Commit the skill at `.claude/skills/codev/`.
-3. Configure repository (or org) **secrets**: `CLAUDE_CODE_OAUTH_TOKEN` (Claude subscription OAuth token — an `sk-ant-api…` API key goes to the action's `anthropic_api_key` input instead), `SFP_SERVER_TOKEN` (an sfp application token), and `GHA_TOKEN` (a PAT with package read for the container pull and repo scope so the agent can open PRs — the workflow exposes it as `AGENT_GH_PAT` because GitHub Enterprise policy blocks the Actions installation token from creating PRs).
+3. Configure repository (or org) **secrets**: exactly one Claude credential — `CLAUDE_CODE_OAUTH_TOKEN` (OAuth token, bound to an individual's Claude subscription) **or** `ANTHROPIC_API_KEY` (an organization `sk-ant-api…` key from console.anthropic.com; the workflow wires both inputs and the unset one is ignored) — plus `SFP_SERVER_TOKEN` (an sfp application token) and `GHA_TOKEN` (a PAT with package read for the container pull and repo scope so the agent can open PRs — the workflow exposes it as `AGENT_GH_PAT` because GitHub Enterprise policy blocks the Actions installation token from creating PRs).
 4. Configure **Actions variables**: `SFP_SERVER_URL` (your sfp server, e.g. `https://dev6.flxbl.io`) and `SFP_POOL_TAG` (your dev pool). The application token is only valid on the server that issued it — change these two together.
 
 Agent-side behavior in CI (turns, PR conventions, pool etiquette) lives in [`skills/codev/references/github-actions.md`](skills/codev/references/github-actions.md).
