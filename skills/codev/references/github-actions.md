@@ -1,4 +1,4 @@
-# ci-agent — codev inside GitHub Actions
+# github-actions — running codev in CI
 
 Running as an AI agent in the `ghcr.io/flxbl-io/codev` container on GitHub Actions, typically triggered by `@claude` on an issue or PR. This reference covers only what differs from a developer machine; combine it with [`implement.md`](implement.md) for the dev loop itself. Workflow setup (secrets, variables, the ready-to-copy workflow file) is documented in the repository README — it is maintainer configuration, not agent context.
 

@@ -1,6 +1,6 @@
 ---
 name: codev
-description: Salesforce development workflows backed by the sfp dev pool, driven by the codev CLI. Four modes — (1) implement, autonomous end-to-end build/fix on a fresh sandbox with deploy and report; (2) sandbox-fetch, grab a fresh sandbox for ad-hoc work like exploring, debugging, manual testing; (3) sandbox-open, reopen a sandbox already assigned to you; (4) CI agent runs inside the codev container on GitHub Actions (@claude on an issue/PR). Use when the user asks to build/fix in this repo, asks for a sandbox/org, asks to reopen one they already have, or when running as an agent in CI.
+description: Salesforce development workflows backed by the sfp dev pool, driven by the codev CLI. Four modes — (1) implement, autonomous end-to-end build/fix on a fresh sandbox with deploy and report; (2) sandbox-fetch, grab a fresh sandbox for ad-hoc work like exploring, debugging, manual testing; (3) sandbox-open, reopen a sandbox already assigned to you; (4) github-actions, running inside the codev container in CI (@claude on an issue/PR). Use when the user asks to build/fix in this repo, asks for a sandbox/org, asks to reopen one they already have, or when running as an agent in CI.
 ---
 
 # codev
@@ -12,7 +12,7 @@ Salesforce development workflows for this repo, backed by the sfp dev pool and d
 | "Build/fix X", "implement Y", end-to-end task | **implement** | [references/implement.md](references/implement.md) |
 | "Grab me a sandbox", "give me an org for X", ad-hoc work | **sandbox-fetch** | [references/sandbox-fetch.md](references/sandbox-fetch.md) |
 | "Open my sandbox", "reopen the one for X" | **sandbox-open** | [references/sandbox-open.md](references/sandbox-open.md) |
-| Running in GitHub Actions / the codev container (`@claude` on an issue or PR) | **ci-agent** | [references/github-actions.md](references/github-actions.md) |
+| Running in GitHub Actions / the codev container (`@claude` on an issue or PR) | **github-actions** | [references/github-actions.md](references/github-actions.md) |
 
 Read the matching reference file before acting. Each reference is self-contained; you do not need to read the others. In CI, read **github-actions.md first**, then the mode reference for the task itself (usually implement).
 
