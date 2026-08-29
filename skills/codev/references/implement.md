@@ -61,7 +61,7 @@ POOL_TAG=${SFP_POOL_TAG:-$(jq -r '."pool-tag" // empty' .sfp-pro/config.json 2>/
 [ -z "$POOL_TAG" ] && { echo "pool tag not resolvable (SFP_POOL_TAG env, task instruction, or .sfp-pro/config.json)" >&2; exit 1; }
 ```
 
-Don't try to auto-discover a pool. If `pool-tag` isn't set in config, surface that to the user and stop. The configured pool is the dev pool for ad-hoc work; review-env pools are managed separately by `codev review-envs` and should never be poached.
+Don't try to auto-discover a pool. If `pool-tag` isn't set in config, surface that to the user and stop. The configured pool is the dev pool for ad-hoc work; review-env pools are managed separately by `codev review-envs` — do not take instances from them.
 
 ### 5. Fetch the sandbox
 
