@@ -35,6 +35,13 @@ jobs:
       SFP_SERVER_TOKEN: ${{ secrets.SFP_SERVER_TOKEN }}
       SFP_REPOSITORY: ${{ github.repository }}
       SFP_POOL_TAG: ${{ vars.SFP_POOL_TAG }}
+      CODEV_PROVIDER: github
+      CODEV_REPOSITORY_ID: ${{ github.event.repository.id }}
+      CODEV_THREAD_ID: ${{ github.event.issue.id }}
+      CODEV_THREAD_NUMBER: ${{ github.event.issue.number }}
+      CODEV_THREAD_TYPE: ${{ github.event.issue.pull_request && 'pull_request' || 'issue' }}
+      CODEV_AGENT_KIND: claude
+      CODEV_EXECUTION_MODE: github_actions
       # PAT under a name the claude action does not clobber — the enterprise
       # forbids the Actions installation token from creating PRs.
       AGENT_GH_PAT: ${{ secrets.GHA_TOKEN }}
@@ -57,6 +64,24 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global --add safe.directory '*'
 
+      - name: Begin codev agent telemetry
+        run: |
+          set -u
+          if task_json=$(codev agent begin --repository "$SFP_REPOSITORY" --json); then
+            if task_id=$(printf '%s' "$task_json" | node -e '
+              const fs = require("fs")
+              const value = JSON.parse(fs.readFileSync(0, "utf8"))
+              if (!value.taskId) process.exit(1)
+              process.stdout.write(value.taskId)
+            '); then
+              echo "CODEV_AGENT_TASK_ID=$task_id" >> "$GITHUB_ENV"
+            else
+              echo "::warning::codev telemetry did not return a task id"
+            fi
+          else
+            echo "::warning::codev telemetry could not start; agent work will continue"
+          fi
+
       - uses: anthropics/claude-code-action@v1
         with:
           # Set exactly ONE of these two secrets — the OAuth token is bound to
@@ -69,3 +94,17 @@ jobs:
           # (which needs id-token:write + the Claude GitHub App installed)
           github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_args: --allowedTools "Bash,Read,Write,Edit,Glob,Grep"
+
+      - name: Link the agent pull request
+        if: always()
+        run: |
+          set -u
+          if [ -z "${CODEV_AGENT_TASK_ID:-}" ]; then
+            exit 0
+          fi
+
+          if pr_number=$(GH_TOKEN="$AGENT_GH_PAT" gh pr view --json number --jq .number 2>/dev/null); then
+            if ! codev agent link-pr --number "$pr_number" --repository "$SFP_REPOSITORY"; then
+              echo "::warning::codev telemetry could not link pull request #$pr_number"
+            fi
+          fi

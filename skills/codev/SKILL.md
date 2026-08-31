@@ -18,11 +18,7 @@ Read the matching reference file before acting. Each reference is self-contained
 
 ## Shared operating context (all modes)
 
-- **CLI:** the command is **`codev`** — the developer CLI shipped by the codev desktop app ("Install command-line tools" in its settings) and by the `ghcr.io/flxbl-io/codev` container image. On legacy setups where only the standalone `sfp` binary exists, every command and flag below is identical — substitute the binary name once:
-  ```bash
-  CLI=codev; command -v codev >/dev/null 2>&1 || CLI=sfp
-  ```
-  `sf` and `sfdx` are NOT the tools for these workflows — don't fall back to them for pool/push/test operations even if present. When `codev` errors, run `codev <cmd> --help` rather than guessing flags.
+- **CLI:** invoke **`codev`** directly — it is shipped by the codev desktop app and by the `ghcr.io/flxbl-io/codev` container image. This skill never invokes `sfp`, `sf`, or `sfdx` as a fallback. When `codev` errors, run `codev <cmd> --help` rather than guessing flags.
 - **Auth — two modes, detect before doing anything:**
   1. **Application token (CI, containers):** `SFP_SERVER_TOKEN` and `SFP_SERVER_URL` are preset in the environment; auth just works — never ask for credentials, never pass `--email`. `SFP_REPOSITORY`, when set, is the default `--repository`.
   2. **Desktop session (developer machines):** codev reuses the signed-in codev app session. Exit code **78** with "codev requires a signed-in codev app" means the user must open the app and sign in — surface that and stop; there is no workaround and you must not ask for passwords. (Legacy standalone `sfp` instead reads `.sfp-pro/config.json` — see below.)
