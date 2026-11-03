@@ -1,6 +1,6 @@
 ---
 name: diff-packages
-description: How diff packages (`"type": "diff"` in sfdx-project.json) behave in a Flxbl project, and how to change them safely. Covers registering a package, what goes into the artifact, baselines across environments, deleting components, reverting or restoring changes when environments are at different commits, and diagnosing a component that is missing from an artifact or a deploy that fails on it. Use before reverting, deleting or restoring metadata in a diff package, when an environment is ahead of or behind another, or when asked why a change did not reach an org. Not for source, unlocked or data packages, which always build in full.
+description: How diff packages (packages marked as type diff in sfdx-project.json) behave in a Flxbl project, and how to change them safely. Covers registering a package, what goes into the artifact, baselines across environments, deleting components, reverting or restoring changes when environments are at different commits, and diagnosing a component that is missing from an artifact or a deploy that fails on it. Use before reverting, deleting or restoring metadata in a diff package, when an environment is ahead of or behind another, or when asked why a change did not reach an org. Not for source, unlocked or data packages, which always build in full.
 ---
 
 # diff-packages
