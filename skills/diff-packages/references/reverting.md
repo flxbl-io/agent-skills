@@ -61,3 +61,7 @@ Compare the org with git directly. A successful deploy tells you nothing here.
 To repair it, change each affected file again so that it's in the next build. Don't edit baselines to force this without asking a person.
 
 Report it plainly either way: which environment, which files, what the org holds and what git says.
+
+## Tests
+
+On a project using codev-suggested test lists, a revert PR that changes Apex needs its own test decision. If it's left undecided, or pushed without a PR, the package falls back to its yaml suite or `RunRelevantTests`. See [test-selection.md](test-selection.md).

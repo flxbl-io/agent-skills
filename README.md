@@ -9,7 +9,7 @@ Built on the [open agent skills standard](https://skills.sh) and installed via [
 | Skill | What it does |
 |---|---|
 | **[codev](skills/codev/)** | Salesforce dev workflows backed by the [sfp](https://docs.flxbl.io/sfp) dev pool, driven by the **codev CLI**. Four modes: end-to-end implement/deploy, ad-hoc sandbox fetch, reopen an assigned sandbox, and a CI agent mode for `@claude` runs inside the `ghcr.io/flxbl-io/codev` container on GitHub Actions. |
-| **[diff-packages](skills/diff-packages/)** | How diff packages behave and how to change them safely: what goes in the artifact, baselines across environments, deleting components, reverting when environments are at different commits, and diagnosing missing components or failed deploys. |
+| **[diff-packages](skills/diff-packages/)** | How diff packages behave and how to change them safely: what goes in the artifact, baselines across environments, deleting components, reverting when environments are at different commits, test selection including codev-suggested lists, and diagnosing missing components or failed deploys. |
 
 ## Install
 

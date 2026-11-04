@@ -1,6 +1,6 @@
 ---
 name: diff-packages
-description: How diff packages (packages marked as type diff in sfdx-project.json) behave in a Flxbl project, and how to change them safely. Covers registering a package, what goes into the artifact, baselines across environments, deleting components, reverting or restoring changes when environments are at different commits, and diagnosing a component that is missing from an artifact or a deploy that fails on it. Use before reverting, deleting or restoring metadata in a diff package, when an environment is ahead of or behind another, or when asked why a change did not reach an org. Not for source, unlocked or data packages, which always build in full.
+description: How diff packages (packages marked as type diff in sfdx-project.json) behave in a Flxbl project, and how to change them safely. Covers registering a package, what goes into the artifact, baselines across environments, deleting components, reverting or restoring changes when environments are at different commits, test selection including codev-suggested test lists, and diagnosing a component that is missing from an artifact or a deploy that fails on it. Use before reverting, deleting or restoring metadata in a diff package, when an environment is ahead of or behind another, when a PR is waiting on a test decision, or when asked why a change did not reach an org. Not for source, unlocked or data packages, which always build in full.
 ---
 
 # diff-packages
@@ -12,7 +12,8 @@ A diff package contains only what changed between a **baseline commit** and the 
 | Add or register a diff package, or check whether a change will be included | [references/setup.md](references/setup.md) |
 | Remove a component from orgs | [references/deleting-components.md](references/deleting-components.md) |
 | Revert a change, restore something deleted, or undo a merged PR | [references/reverting.md](references/reverting.md) |
-| A component is missing from an artifact or an org, a deploy fails, or tests run unexpectedly | [references/diagnosing.md](references/diagnosing.md) |
+| Which tests run, codev-suggested test lists, or a PR waiting on a test decision | [references/test-selection.md](references/test-selection.md) |
+| A component is missing from an artifact or an org, or a deploy fails | [references/diagnosing.md](references/diagnosing.md) |
 
 Check `"type": "diff"` on the package's entry in `sfdx-project.json` first. If it isn't there, none of this applies.
 
@@ -32,6 +33,7 @@ These change what later builds contain, or change an org outside the normal pipe
 - **Editing a baseline.** Later builds won't deploy the changes it skips. Only an `owner` can do this, in the codev web app.
 - **Running Sync Org to Branch** on a shared environment.
 - **Deactivating an environment** to change where builds start.
+- **Accepting or rejecting a test list** with `/tests`. It sets what guards production.
 
 ## CLI
 

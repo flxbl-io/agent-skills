@@ -33,15 +33,7 @@ Don't trust the baseline or the artifact record here, because both only show wha
 
 ## Which tests run
 
-For a diff package with Apex, highest precedence first:
-
-1. An artifact override or explicit test level.
-2. `skipTesting`, which is never honoured on a production release.
-3. `isOptimizedDeployment: false` on the package: `RunLocalTests`.
-4. A bound test suite (`config/sfp_testsuites.yaml`, `deploy_with`): `RunSpecifiedTests`. The list is fixed at build time.
-5. Otherwise: `RunRelevantTests`.
-
-With no Apex in the payload, sandboxes run no tests. Rollback on error stays on for releases, and is off only for a committing validation, so a release deploy is all or nothing.
+See [test-selection.md](test-selection.md), including why a build ignored its codev-suggested list.
 
 ## Component checksum skip
 
