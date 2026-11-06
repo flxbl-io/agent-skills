@@ -59,6 +59,15 @@ Plus, in all setups: **sfp server access with a configured dev pool** and **a Fl
 
 ## Skill design
 
+Skills come in two kinds:
+
+| Kind | Name | Holds |
+|---|---|---|
+| Dev workflow | `codev` | The dev-pool loop: implement, sandbox fetch and reopen, and CI |
+| Topic knowledge | `codev-<topic>` | How one area of sfp and codev behaves and how to change it safely, e.g. `codev-diff-package` |
+
+Each skill installs on its own, so it carries the CLI conventions it needs and never depends on another skill's files.
+
 Each skill follows the slim-router pattern:
 
 ```

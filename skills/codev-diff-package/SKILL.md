@@ -37,7 +37,18 @@ These change what later builds contain, or change an org outside the normal pipe
 
 ## CLI
 
-Use the conventions in the [codev skill](../codev/SKILL.md) if it's installed: `codev` where available, otherwise `sfp`, with the same commands and flags. Run `<cli> <command> --help` rather than guessing a flag.
+- **Which binary.** Use `codev` where it's installed, otherwise `sfp`. Commands and flags are the same:
+  ```bash
+  CLI=codev; command -v codev >/dev/null 2>&1 || CLI=sfp
+  ```
+  Run `$CLI <command> --help` rather than guessing a flag. `sf` and `sfdx` aren't the tools for these workflows.
+- **Auth.** In CI and containers, `SFP_SERVER_TOKEN` and `SFP_SERVER_URL` are already set, so don't ask for credentials. On a developer machine, `codev` uses the signed-in codev app session. Exit code 78 means the user must sign in to the app.
+- **Repository.** Use `SFP_REPOSITORY` if it's set, otherwise derive it from `origin`:
+  ```bash
+  REPO=${SFP_REPOSITORY:-$(git remote get-url origin | sed -E 's|\.git$||; s|^.*[:/]([^/]+/[^/]+)$|\1|')}
+  ```
+- **`--json` output.** JSON goes to stdout and logs to stderr. Never add `2>&1` when parsing it.
+- **Secrets.** Never print tokens, `sfdxAuthUrl` values or frontdoor URLs, and never write them to files.
 
 The `codev` CLI has `build`, `install`, `package create diff` and `package diff`. `sync org` and `project preflight` exist only in standalone `sfp`, or as operations in the codev app.
 
