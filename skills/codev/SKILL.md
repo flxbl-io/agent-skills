@@ -14,6 +14,8 @@ Salesforce development workflows for this repo, backed by the sfp dev pool and d
 | "Open my sandbox", "reopen the one for X" | **sandbox-open** | [references/sandbox-open.md](references/sandbox-open.md) |
 | Running in GitHub Actions / the codev container (`@claude` on an issue or PR) | **github-actions** | [references/github-actions.md](references/github-actions.md) |
 
+For a package with `"type": "diff"` in `sfdx-project.json`, also follow the [codev-diff-package](../codev-diff-package/SKILL.md) skill before changing it: it's built into an immutable artifact that every environment receives in turn, not a change set.
+
 Read the matching reference file before acting. Each reference is self-contained; you do not need to read the others. In CI, read **github-actions.md first**, then the mode reference for the task itself (usually implement).
 
 ## Shared operating context (all modes)

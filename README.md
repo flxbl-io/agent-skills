@@ -9,6 +9,7 @@ Built on the [open agent skills standard](https://skills.sh) and installed via [
 | Skill | What it does |
 |---|---|
 | **[codev](skills/codev/)** | Salesforce dev workflows backed by the [sfp](https://docs.flxbl.io/sfp) dev pool, driven by the **codev CLI**. Four modes: end-to-end implement/deploy, ad-hoc sandbox fetch, reopen an assigned sandbox, and a CI agent mode for `@claude` runs inside the `ghcr.io/flxbl-io/codev` container on GitHub Actions. |
+| **[codev-diff-package](skills/codev-diff-package/)** | How to work with diff packages: the artifact model (one immutable artifact that every environment receives in turn, not a change set), deleting components, reverting when environments are at different commits, deployment scripts, test selection, and diagnosing missing components or failed deploys. |
 
 ## Install
 
@@ -22,6 +23,7 @@ Or pick one skill:
 
 ```bash
 npx skills add flxbl-io/agent-skills/codev
+npx skills add flxbl-io/agent-skills/codev-diff-package
 ```
 
 The CLI auto-detects your agent (Claude Code, Cursor, etc.) and drops the skill into the right location (e.g. `.claude/skills/codev/` for Claude Code).
@@ -56,6 +58,15 @@ These skills are designed for teams using the Flxbl framework. To use `codev`, y
 Plus, in all setups: **sfp server access with a configured dev pool** and **a Flxbl-style repo** with `sfdx-project.json` describing packages and (typically) domains. Without a server and a dev pool, the skill has nothing to fetch sandboxes from. If you're a Flxbl customer and need access, contact your Flxbl admin or reach out via [flxbl.io](https://flxbl.io).
 
 ## Skill design
+
+Skills come in two kinds:
+
+| Kind | Name | Holds |
+|---|---|---|
+| Dev workflow | `codev` | The dev-pool loop: implement, sandbox fetch and reopen, and CI |
+| Topic knowledge | `codev-<topic>` | How one area of sfp and codev behaves and how to change it safely, e.g. `codev-diff-package` |
+
+Each skill installs on its own, so it carries the CLI conventions it needs and never depends on another skill's files.
 
 Each skill follows the slim-router pattern:
 
