@@ -1,9 +1,9 @@
 ---
-name: diff-packages
+name: codev-diff-package
 description: How diff packages (packages marked as type diff in sfdx-project.json) behave in a Flxbl project, and how to change them safely. Covers registering a package, what goes into the artifact, baselines across environments, deleting components, reverting or restoring changes when environments are at different commits, test selection including codev-suggested test lists, and diagnosing a component that is missing from an artifact or a deploy that fails on it. Use before reverting, deleting or restoring metadata in a diff package, when an environment is ahead of or behind another, when a PR is waiting on a test decision, or when asked why a change did not reach an org. Not for source, unlocked or data packages, which always build in full.
 ---
 
-# diff-packages
+# codev-diff-package
 
 A diff package contains only what changed between a **baseline commit** and the build commit. That makes it behave differently from every other package type, in ways that are easy to get wrong. Read the matching reference before acting:
 
