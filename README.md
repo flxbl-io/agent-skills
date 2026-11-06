@@ -11,6 +11,7 @@ Built on the [open agent skills standard](https://skills.sh) and installed via [
 | **[codev](skills/codev/)** | Salesforce dev workflows backed by the [sfp](https://docs.flxbl.io/sfp) dev pool, driven by the **codev CLI**. Four modes: end-to-end implement/deploy, ad-hoc sandbox fetch, reopen an assigned sandbox, and a CI agent mode for `@claude` runs inside the `ghcr.io/flxbl-io/codev` container on GitHub Actions. |
 | **[codev-diff-package](skills/codev-diff-package/)** | How to work with diff packages: the artifact model (one immutable artifact that every environment receives in turn, not a change set), deleting components, reverting when environments are at different commits, deployment scripts, test selection, and diagnosing missing components or failed deploys. |
 | **[codev-review-environments](skills/codev-review-environments/)** | How review environments work and how to use them: how a PR gets one, leases, what unassign, renew and merge do to the org, PR comment commands, syncing an environment that is behind, and what to leave to a person. |
+| **[codev-data-package](skills/codev-data-package/)** | How to work with data packages: one artifact loads the same records into every environment, so operations must be safe to rerun. Covers export.json, external IDs, per-record files, environment-specific data, failed loads and the dev loop. |
 
 ## Install
 
@@ -26,6 +27,7 @@ Or pick one skill:
 npx skills add flxbl-io/agent-skills/codev
 npx skills add flxbl-io/agent-skills/codev-diff-package
 npx skills add flxbl-io/agent-skills/codev-review-environments
+npx skills add flxbl-io/agent-skills/codev-data-package
 ```
 
 The CLI auto-detects your agent (Claude Code, Cursor, etc.) and drops the skill into the right location (e.g. `.claude/skills/codev/` for Claude Code).
