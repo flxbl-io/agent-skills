@@ -20,6 +20,18 @@ Move the component's metadata file into a folder beside `main/default`, keeping 
 
 Remove references from other metadata in the same change, such as permission sets, layouts and Apex. Check other packages too, since this package's diff won't show them.
 
+### Example: removing an LWC used on a Lightning page
+
+The change deletes an LWC, removes it from the FlexiPage that shows it, and removes the `@AuraEnabled` Apex method it calls. **Verified** on 2026-11-06 against a scratch org:
+
+| Where the LWC goes | Result |
+|---|---|
+| `post-destructive/` | **One deployment succeeded.** The Apex and FlexiPage deployed, then the LWC was deleted |
+| `pre-destructive/` | Failed: `Referenced by a component instance inside the Lightning page`. The delete runs before the page is updated |
+| Deleted in git only | The deploy succeeded, but the LWC stayed in the org |
+
+Put a component in `post-destructive/` when the same change removes what references it. Salesforce also allowed the Apex method to be removed while the LWC that imports it still existed, so that order didn't matter.
+
 ## Flows are different
 
 For both folders, flows are deactivated and all their versions deleted **before** the metadata deploy, and this is not part of the transaction. If the later deploy fails, the flow stays deleted. Anything that blocks the deletion must already be gone from the org. See the product documentation before relying on this.
