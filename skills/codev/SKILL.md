@@ -16,6 +16,8 @@ Salesforce development workflows for this repo, backed by the sfp dev pool and d
 
 For a package with `"type": "diff"` in `sfdx-project.json`, also follow the [codev-diff-package](../codev-diff-package/SKILL.md) skill before changing it: it's built into an immutable artifact that every environment receives in turn, not a change set.
 
+For a pull request's review environment, follow the [codev-review-environments](../codev-review-environments/SKILL.md) skill: review pools are not dev pools.
+
 Read the matching reference file before acting. Each reference is self-contained; you do not need to read the others. In CI, read **github-actions.md first**, then the mode reference for the task itself (usually implement).
 
 ## Shared operating context (all modes)
