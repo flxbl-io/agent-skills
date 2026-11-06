@@ -1,6 +1,6 @@
 # Which tests a diff package runs
 
-Everything here is read from the product's source, not run. codev-suggested lists need server 53.26.0 and CLI 52.37.0 or later. The product documentation may still describe a suggestion as only advice. In these versions an accepted list does change the test level.
+codev-suggested lists need server 53.26.0 and CLI 52.37.0 or later. The product documentation may still describe a suggestion as only advice. In these versions an accepted list does change the test level.
 
 ## Order of precedence
 

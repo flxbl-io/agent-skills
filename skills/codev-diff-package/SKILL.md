@@ -52,8 +52,6 @@ These change what later builds contain, or change an org outside the normal pipe
 
 The `codev` CLI has `build`, `install`, `package create diff` and `package diff`. `sync org` and `project preflight` exist only in standalone `sfp`, or as operations in the codev app.
 
-## How far this has been verified
-
-Items marked **Verified** were run on 2026-11-04 with sfp 52.29.2 against a Salesforce scratch org, using a stand-in for the sfp server that held the baselines. The Sync Org to Branch dry runs used an artifact record inserted by hand, with the same fields a successful deploy writes. The rest comes from the product's source and documentation. Newer sfp versions may behave differently, so check the output of a dry-run build rather than relying on this alone.
+## Further reading
 
 Product documentation: [Diff Package](https://docs.flxbl.io/sfp/concepts/supported-package-types/diff-package), [Destructive Changes](https://docs.flxbl.io/sfp/concepts/destructive-changes).

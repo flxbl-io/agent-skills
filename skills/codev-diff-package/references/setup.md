@@ -36,7 +36,7 @@ Inactive environments never count. A shallow clone can leave baselines outside t
 
 - Files under the package `path` that differ between the start and the build commit.
 - Companion files that must deploy with them, such as the parent object of a changed MasterDetail field, or the holder of a decomposed permission set part. Only files inside this package's `path` are added. For a companion in another package, the build logs a warning and copies nothing.
-- The whole of `pre-destructive/` and `post-destructive/`, if they exist. **Verified:** they ship even when the build's range doesn't touch them.
+- The whole of `pre-destructive/` and `post-destructive/`, if they exist, even when the build's range doesn't touch them.
 
 ## Preview before merging
 

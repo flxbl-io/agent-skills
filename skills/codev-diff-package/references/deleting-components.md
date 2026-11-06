@@ -1,6 +1,6 @@
 # Deleting components
 
-Removing a file from `main/default` removes nothing from any org. **Verified:** an object deleted only in git stayed in the org after the deploy reported success.
+Removing a file from `main/default` removes nothing from any org. The deploy succeeds and the component stays.
 
 ## How to delete
 
@@ -22,7 +22,7 @@ Remove references from other metadata in the same change, such as permission set
 
 ### Example: removing an LWC used on a Lightning page
 
-The change deletes an LWC, removes it from the FlexiPage that shows it, and removes the `@AuraEnabled` Apex method it calls. **Verified** on 2026-11-06 against a scratch org:
+The change deletes an LWC, removes it from the FlexiPage that shows it, and removes the `@AuraEnabled` Apex method it calls:
 
 | Where the LWC goes | Result |
 |---|---|
@@ -38,7 +38,7 @@ For both folders, flows are deactivated and all their versions deleted **before*
 
 ## After the delete has reached every environment
 
-Merge a follow-up change that removes the folder. Until then it ships in every build (**Verified**), so the delete runs again on each deploy.
+Merge a follow-up change that removes the folder. Until then it ships in every build, so the delete runs again on each deploy.
 
 Do this before anyone restores the component, or a build could delete it again.
 
